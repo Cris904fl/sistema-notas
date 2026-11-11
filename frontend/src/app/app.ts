@@ -16,6 +16,7 @@ import { TemaService } from './core/tema.service';
           <span>Sistema de Notas</span>
         </a>
         <nav class="pestanas" aria-label="Menú principal">
+          <a routerLink="/" routerLinkActive="activa" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
           <a routerLink="/estudiantes" routerLinkActive="activa">Estudiantes</a>
           <a routerLink="/profesores" routerLinkActive="activa">Profesores</a>
           <a routerLink="/notas" routerLinkActive="activa">Notas</a>

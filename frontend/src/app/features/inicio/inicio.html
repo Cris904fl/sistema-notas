@@ -1,0 +1,84 @@
+<div class="pagina-cabecera">
+  <div>
+    <h1>Resumen</h1>
+    <p class="texto-tenue">Indicadores generales del registro de notas</p>
+  </div>
+</div>
+
+@if (resumen(); as r) {
+  <div class="indicadores">
+    <div class="indicador">
+      <span class="indicador-etiqueta">Estudiantes</span>
+      <span class="indicador-valor">{{ r.indicadores.totalEstudiantes }}</span>
+      <a routerLink="/estudiantes" class="indicador-enlace">Ver estudiantes</a>
+    </div>
+    <div class="indicador">
+      <span class="indicador-etiqueta">Profesores</span>
+      <span class="indicador-valor">{{ r.indicadores.totalProfesores }}</span>
+      <a routerLink="/profesores" class="indicador-enlace">Ver profesores</a>
+    </div>
+    <div class="indicador">
+      <span class="indicador-etiqueta">Notas registradas</span>
+      <span class="indicador-valor">{{ r.indicadores.totalNotas }}</span>
+      <a routerLink="/notas" class="indicador-enlace">Ver notas</a>
+    </div>
+    <div class="indicador">
+      <span class="indicador-etiqueta">Promedio general</span>
+      <span class="indicador-valor" [class.reprobado]="r.indicadores.promedioGeneral != null && r.indicadores.promedioGeneral < 3">
+        {{ r.indicadores.promedioGeneral != null ? (r.indicadores.promedioGeneral | number:'1.1-1') : '—' }}
+      </span>
+      <span class="texto-tenue">
+        Mín. {{ r.indicadores.notaMinima != null ? (r.indicadores.notaMinima | number:'1.1-1') : '—' }}
+        · Máx. {{ r.indicadores.notaMaxima != null ? (r.indicadores.notaMaxima | number:'1.1-1') : '—' }}
+      </span>
+    </div>
+    <div class="indicador">
+      <span class="indicador-etiqueta">Aprobación</span>
+      <span class="indicador-valor">
+        {{ r.indicadores.porcentajeAprobacion != null ? (r.indicadores.porcentajeAprobacion | number:'1.0-1') + ' %' : '—' }}
+      </span>
+      <span class="texto-tenue">Notas iguales o mayores a 3,0</span>
+    </div>
+  </div>
+
+  <div class="columnas">
+    <section class="panel">
+      <h2 class="panel-titulo">Mejores promedios</h2>
+      @for (e of r.mejoresEstudiantes; track e.id; let i = $index) {
+        <div class="fila-barra">
+          <span class="fila-barra-posicion">{{ i + 1 }}</span>
+          <div class="fila-barra-contenido">
+            <div class="fila-barra-texto">
+              <span>{{ e.nombre }}</span>
+              <span class="fila-barra-valor" [class.reprobado]="e.promedio != null && e.promedio < 3">{{ e.promedio | number:'1.1-1' }}</span>
+            </div>
+            <div class="barra"><div class="barra-relleno" [class.barra-baja]="e.promedio != null && e.promedio < 3" [style.width.%]="ancho(e.promedio)"></div></div>
+          </div>
+        </div>
+      } @empty {
+        <p class="texto-tenue panel-vacio">Aún no hay notas registradas.</p>
+      }
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-titulo">Promedio por profesor</h2>
+      @for (p of r.promedioPorProfesor; track p.id) {
+        <div class="fila-barra">
+          <div class="fila-barra-contenido">
+            <div class="fila-barra-texto">
+              <span>{{ p.nombre }} <span class="texto-tenue">· {{ p.cantidadNotas }} {{ p.cantidadNotas === 1 ? 'nota' : 'notas' }}</span></span>
+              <span class="fila-barra-valor" [class.reprobado]="p.promedio != null && p.promedio < 3">
+                {{ p.promedio != null ? (p.promedio | number:'1.1-1') : '—' }}
+              </span>
+            </div>
+            <div class="barra"><div class="barra-relleno" [class.barra-baja]="p.promedio != null && p.promedio < 3" [style.width.%]="ancho(p.promedio)"></div></div>
+          </div>
+        </div>
+      } @empty {
+        <p class="texto-tenue panel-vacio">No hay profesores registrados.</p>
+      }
+    </section>
+  </div>
+} @else if (cargando()) {
+  <p class="texto-tenue">Cargando indicadores...</p>
+}

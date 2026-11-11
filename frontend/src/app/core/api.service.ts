@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_URL } from './config';
-import { ConsultaPaginada, Paginado } from './models';
+import { ConsultaPaginada, Paginado, Resumen } from './models';
 
 export type Recurso = 'estudiantes' | 'profesores' | 'notas';
 
@@ -33,6 +33,10 @@ export class ApiService {
 
   eliminar(recurso: Recurso, id: number): Observable<void> {
     return this.http.delete<void>(`${API_URL}/${recurso}/${id}`);
+  }
+
+  resumen(): Observable<Resumen> {
+    return this.http.get<Resumen>(`${API_URL}/resumen`);
   }
 }
 

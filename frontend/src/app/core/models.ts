@@ -40,3 +40,26 @@ export interface NotaGuardar {
   idProfesor: number;
   valor: number;
 }
+
+export interface Indicadores {
+  totalEstudiantes: number;
+  totalProfesores: number;
+  totalNotas: number;
+  promedioGeneral: number | null;
+  porcentajeAprobacion: number | null;
+  notaMaxima: number | null;
+  notaMinima: number | null;
+}
+
+export interface Promedio {
+  id: number;
+  nombre: string;
+  cantidadNotas: number;
+  promedio: number | null;
+}
+
+export interface Resumen {
+  indicadores: Indicadores;
+  mejoresEstudiantes: Promedio[];
+  promedioPorProfesor: Promedio[];
+}

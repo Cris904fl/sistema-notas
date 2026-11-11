@@ -347,6 +347,40 @@ p { margin: 0; }
 .aviso-texto { flex: 1; }
 @keyframes aparecer { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+/* ---------- Tablero de resumen ---------- */
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.indicador {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.indicador-etiqueta { color: var(--texto-tenue); font-weight: 500; }
+.indicador-valor { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.indicador-enlace { color: var(--acento); text-decoration: none; font-weight: 500; font-size: 13px; }
+.indicador-enlace:hover { text-decoration: underline; }
+
+.columnas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.panel-titulo { font-size: 15px; font-weight: 600; margin: 0; padding: 14px 16px; border-bottom: 1px solid var(--borde); }
+.panel-vacio { padding: 16px; }
+.fila-barra { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--borde); }
+.fila-barra:last-child { border-bottom: 0; }
+.fila-barra-posicion { width: 20px; color: var(--texto-tenue); font-variant-numeric: tabular-nums; }
+.fila-barra-contenido { flex: 1; min-width: 0; }
+.fila-barra-texto { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.fila-barra-valor { font-weight: 600; font-variant-numeric: tabular-nums; }
+.barra { height: 6px; background: var(--hover); border-radius: 999px; overflow: hidden; }
+.barra-relleno { height: 100%; background: var(--acento); border-radius: 999px; }
+.barra-baja { background: var(--peligro); }
+
 /* =========================================================
    Celular: la tabla se convierte en tarjetas
    ========================================================= */
@@ -402,6 +436,9 @@ p { margin: 0; }
   .fila-vacia td { justify-content: center; }
 
   .paginacion { flex-direction: column; gap: 8px; }
+  .columnas { grid-template-columns: 1fr; }
+  .indicadores { grid-template-columns: 1fr 1fr; }
+  .indicador-valor { font-size: 24px; }
 
   /* Formularios como hoja inferior */
   .capa { align-items: end; padding: 0; }
