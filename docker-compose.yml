@@ -1,0 +1,32 @@
+# Levanta SQL Server 2022 y ejecuta database/script.sql la primera vez.
+# Uso:  docker compose up -d
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: gestionnotas-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Prueba123*"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Prueba123*' -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Contenedor auxiliar: espera a que SQL Server esté listo y ejecuta el script.
+  sqlinit:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - ./database:/scripts:ro
+    entrypoint: >
+      /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "Prueba123*" -C -i /scripts/script.sql
+
+volumes:
+  sqldata:
