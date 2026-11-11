@@ -29,3 +29,8 @@ public interface INotaService
     Task<NotaDto> ActualizarAsync(int id, NotaGuardarDto dto, CancellationToken ct = default);
     Task EliminarAsync(int id, CancellationToken ct = default);
 }
+
+public interface IResumenService
+{
+    Task<ResumenDto> ObtenerAsync(int cantidadMejores = 5, CancellationToken ct = default);
+}

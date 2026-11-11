@@ -9,6 +9,10 @@ public class GestionNotasDbContext(DbContextOptions<GestionNotasDbContext> optio
     public DbSet<Profesor> Profesores => Set<Profesor>();
     public DbSet<Nota> Notas => Set<Nota>();
 
+    // Precisión por defecto para los decimales (incluye los resultados del procedimiento y las vistas del tablero).
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        => configurationBuilder.Properties<decimal>().HavePrecision(5, 1);
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // El mapeo coincide con database/script.sql (tablas en singular, esquema dbo).
