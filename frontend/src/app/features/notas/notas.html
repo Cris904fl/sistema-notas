@@ -1,0 +1,113 @@
+<div class="pagina-cabecera">
+  <div>
+    <h1>Notas</h1>
+    <p class="texto-tenue">Calificaciones en escala de 0,0 a 5,0</p>
+  </div>
+  <button type="button" class="boton boton-primario" (click)="nueva()">
+    <app-icono nombre="mas" /> Nueva nota
+  </button>
+</div>
+
+<section class="panel">
+  <div class="panel-barra">
+    <label class="buscador">
+      <app-icono nombre="buscar" />
+      <input type="search" placeholder="Buscar por nota, estudiante o profesor" aria-label="Buscar"
+             (input)="buscar($any($event.target).value)" />
+    </label>
+    <select class="entrada entrada-filtro" aria-label="Filtrar por estudiante" (change)="filtrar('estudiante', $any($event.target).value)">
+      <option value="">Todos los estudiantes</option>
+      @for (e of estudiantes(); track e.id) { <option [value]="e.id">{{ e.nombre }}</option> }
+    </select>
+    <select class="entrada entrada-filtro" aria-label="Filtrar por profesor" (change)="filtrar('profesor', $any($event.target).value)">
+      <option value="">Todos los profesores</option>
+      @for (p of profesores(); track p.id) { <option [value]="p.id">{{ p.nombre }}</option> }
+    </select>
+  </div>
+
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th class="col-id">Id</th>
+        <th><button type="button" class="encabezado-orden" (click)="ordenar('nombre')">Nota <span>{{ icono('nombre') }}</span></button></th>
+        <th><button type="button" class="encabezado-orden" (click)="ordenar('estudiante')">Estudiante <span>{{ icono('estudiante') }}</span></button></th>
+        <th><button type="button" class="encabezado-orden" (click)="ordenar('profesor')">Profesor <span>{{ icono('profesor') }}</span></button></th>
+        <th class="col-numero"><button type="button" class="encabezado-orden" (click)="ordenar('valor')">Valor <span>{{ icono('valor') }}</span></button></th>
+        <th class="col-acciones"><span class="solo-lectores">Acciones</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (n of datos()?.elementos ?? []; track n.id) {
+        <tr>
+          <td class="col-id" data-etiqueta="Id">{{ n.id }}</td>
+          <td class="col-principal" data-etiqueta="Nota">{{ n.nombre }}</td>
+          <td data-etiqueta="Estudiante">{{ n.estudiante }}</td>
+          <td data-etiqueta="Profesor">{{ n.profesor }}</td>
+          <td class="col-numero" data-etiqueta="Valor" [class.reprobado]="n.valor < 3">{{ n.valor | number:'1.1-1' }}</td>
+          <td class="col-acciones">
+            <button type="button" class="boton-icono" title="Editar" [attr.aria-label]="'Editar ' + n.nombre" (click)="editar(n)">
+              <app-icono nombre="editar" />
+            </button>
+            <button type="button" class="boton-icono boton-icono-peligro" title="Eliminar" [attr.aria-label]="'Eliminar ' + n.nombre" (click)="eliminar(n)">
+              <app-icono nombre="eliminar" />
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr class="fila-vacia"><td colspan="6">{{ cargando() ? 'Cargando...' : 'No se encontraron notas.' }}</td></tr>
+      }
+    </tbody>
+  </table>
+
+  @if (datos(); as d) {
+    <app-paginacion [pagina]="d.pagina" [tamano]="d.tamano" [totalPaginas]="d.totalPaginas"
+                    [totalElementos]="d.totalElementos" (cambiar)="cambiarPagina($event)" />
+  }
+</section>
+
+@if (mostrarFormulario()) {
+  <div class="capa" (click)="cerrarFormulario()">
+    <form class="dialogo" [formGroup]="formulario" (ngSubmit)="guardar()" (click)="$event.stopPropagation()"
+          role="dialog" aria-modal="true" novalidate>
+      <div class="dialogo-encabezado">
+        <h2 class="dialogo-titulo">{{ editando() ? 'Editar nota' : 'Nueva nota' }}</h2>
+        <button type="button" class="boton-icono" aria-label="Cerrar" (click)="cerrarFormulario()"><app-icono nombre="cerrar" /></button>
+      </div>
+      <div class="dialogo-cuerpo">
+        <div class="campo-grupo">
+          <label for="nombre">Nombre de la nota</label>
+          <input id="nombre" class="entrada" formControlName="nombre" placeholder="Ej.: Parcial 1" maxlength="100"
+                 autocomplete="off" [class.invalida]="invalido('nombre')" />
+          @if (invalido('nombre')) { <small class="mensaje-error">El nombre debe tener entre 2 y 100 caracteres.</small> }
+        </div>
+        <div class="campo-grupo">
+          <label for="estudiante">Estudiante</label>
+          <select id="estudiante" class="entrada" formControlName="idEstudiante" [class.invalida]="invalido('idEstudiante')">
+            <option [ngValue]="null" disabled>Seleccione un estudiante</option>
+            @for (e of estudiantes(); track e.id) { <option [ngValue]="e.id">{{ e.nombre }}</option> }
+          </select>
+          @if (invalido('idEstudiante')) { <small class="mensaje-error">Debe seleccionar un estudiante.</small> }
+        </div>
+        <div class="campo-grupo">
+          <label for="profesor">Profesor</label>
+          <select id="profesor" class="entrada" formControlName="idProfesor" [class.invalida]="invalido('idProfesor')">
+            <option [ngValue]="null" disabled>Seleccione un profesor</option>
+            @for (p of profesores(); track p.id) { <option [ngValue]="p.id">{{ p.nombre }}</option> }
+          </select>
+          @if (invalido('idProfesor')) { <small class="mensaje-error">Debe seleccionar un profesor.</small> }
+        </div>
+        <div class="campo-grupo">
+          <label for="valor">Valor</label>
+          <input id="valor" class="entrada entrada-corta" type="number" formControlName="valor" min="0" max="5" step="0.1"
+                 placeholder="0,0" [class.invalida]="invalido('valor')" />
+          @if (invalido('valor')) { <small class="mensaje-error">El valor debe estar entre 0,0 y 5,0.</small> }
+          @else { <small class="texto-tenue">Entre 0,0 y 5,0. Se aprueba desde 3,0.</small> }
+        </div>
+      </div>
+      <div class="dialogo-pie">
+        <button type="button" class="boton" (click)="cerrarFormulario()">Cancelar</button>
+        <button type="submit" class="boton boton-primario" [disabled]="guardando()">{{ guardando() ? 'Guardando...' : 'Guardar' }}</button>
+      </div>
+    </form>
+  </div>
+}

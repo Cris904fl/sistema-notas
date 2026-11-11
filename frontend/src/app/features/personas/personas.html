@@ -1,0 +1,95 @@
+<div class="pagina-cabecera">
+  <div>
+    <h1>{{ config.titulo }}</h1>
+    <p class="texto-tenue">
+      {{ datos()?.totalElementos ?? 0 }} {{ (datos()?.totalElementos ?? 0) === 1 ? config.singular.toLowerCase() : config.titulo.toLowerCase() }} registrados
+    </p>
+  </div>
+  <button type="button" class="boton boton-primario" (click)="nuevo()">
+    <app-icono nombre="mas" /> Nuevo {{ config.singular.toLowerCase() }}
+  </button>
+</div>
+
+<section class="panel">
+  <div class="panel-barra">
+    <label class="buscador">
+      <app-icono nombre="buscar" />
+      <input type="search" placeholder="Buscar por nombre" aria-label="Buscar por nombre"
+             (input)="buscar($any($event.target).value)" />
+    </label>
+  </div>
+
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th class="col-id">Id</th>
+        <th><button type="button" class="encabezado-orden" (click)="ordenar('nombre')">Nombre <span>{{ icono('nombre') }}</span></button></th>
+        <th class="col-numero">Notas</th>
+        @if (config.conPromedio) {
+          <th class="col-numero"><button type="button" class="encabezado-orden" (click)="ordenar('promedio')">Promedio <span>{{ icono('promedio') }}</span></button></th>
+        }
+        <th class="col-acciones"><span class="solo-lectores">Acciones</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of datos()?.elementos ?? []; track p.id) {
+        <tr>
+          <td class="col-id" data-etiqueta="Id">{{ p.id }}</td>
+          <td class="col-principal" data-etiqueta="Nombre">{{ p.nombre }}</td>
+          <td class="col-numero" data-etiqueta="Notas">{{ p.cantidadNotas }}</td>
+          @if (config.conPromedio) {
+            <td class="col-numero" data-etiqueta="Promedio" [class.reprobado]="p.promedio != null && p.promedio < 3">
+              {{ p.promedio != null ? (p.promedio | number:'1.1-1') : '—' }}
+            </td>
+          }
+          <td class="col-acciones">
+            <button type="button" class="boton-icono" title="Editar" [attr.aria-label]="'Editar ' + p.nombre" (click)="editar(p)">
+              <app-icono nombre="editar" />
+            </button>
+            <button type="button" class="boton-icono boton-icono-peligro" title="Eliminar" [attr.aria-label]="'Eliminar ' + p.nombre" (click)="eliminar(p)">
+              <app-icono nombre="eliminar" />
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr class="fila-vacia"><td [attr.colspan]="config.conPromedio ? 5 : 4">
+          {{ cargando() ? 'Cargando...' : 'No se encontraron registros.' }}
+        </td></tr>
+      }
+    </tbody>
+  </table>
+
+  @if (datos(); as d) {
+    <app-paginacion [pagina]="d.pagina" [tamano]="d.tamano" [totalPaginas]="d.totalPaginas"
+                    [totalElementos]="d.totalElementos" (cambiar)="cambiarPagina($event)" />
+  }
+</section>
+
+@if (mostrarFormulario()) {
+  <div class="capa" (click)="cerrarFormulario()">
+    <form class="dialogo" [formGroup]="formulario" (ngSubmit)="guardar()" (click)="$event.stopPropagation()"
+          role="dialog" aria-modal="true" novalidate>
+      <div class="dialogo-encabezado">
+        <h2 class="dialogo-titulo">{{ editando() ? 'Editar' : 'Nuevo' }} {{ config.singular.toLowerCase() }}</h2>
+        <button type="button" class="boton-icono" aria-label="Cerrar" (click)="cerrarFormulario()"><app-icono nombre="cerrar" /></button>
+      </div>
+      <div class="dialogo-cuerpo">
+        <div class="campo-grupo">
+          <label for="nombre">Nombre completo</label>
+          <input id="nombre" class="entrada" formControlName="nombre" maxlength="100" autocomplete="off"
+                 [class.invalida]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid" />
+          @if (formulario.controls.nombre.touched && formulario.controls.nombre.invalid) {
+            <small class="mensaje-error">
+              @if (formulario.controls.nombre.hasError('required')) { El nombre es obligatorio. }
+              @else { El nombre debe tener entre 3 y 100 caracteres. }
+            </small>
+          }
+        </div>
+      </div>
+      <div class="dialogo-pie">
+        <button type="button" class="boton" (click)="cerrarFormulario()">Cancelar</button>
+        <button type="submit" class="boton boton-primario" [disabled]="guardando()">{{ guardando() ? 'Guardando...' : 'Guardar' }}</button>
+      </div>
+    </form>
+  </div>
+}

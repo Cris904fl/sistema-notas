@@ -1,0 +1,415 @@
+/* =========================================================
+   Sistema de Notas – estilos globales
+   Paleta neutra con un solo color de acento (verde azulado).
+   ========================================================= */
+:root {
+  --fondo: #f6f7f9;
+  --superficie: #ffffff;
+  --borde: #e3e6ea;
+  --borde-fuerte: #cfd4da;
+  --texto: #1c2024;
+  --texto-tenue: #687076;
+  --acento: #0f766e;
+  --acento-oscuro: #0b5d57;
+  --acento-suave: #e6f4f2;
+  --peligro: #c62828;
+  --peligro-suave: #fdecec;
+  --superficie-2: #fafbfc;
+  --hover: #eef0f2;
+  --capa: rgba(17, 24, 28, .45);
+  --aviso: #1c2024;
+  --sombra: 0 16px 40px rgba(0, 0, 0, .18);
+  --sobre-acento: #ffffff;
+  --radio: 6px;
+  color-scheme: light;
+  --fuente: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+}
+
+/* ---------- Tema oscuro (se activa con data-tema="oscuro" en <html>) ---------- */
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+  --fondo: #0f1214;
+  --superficie: #171b1e;
+  --superficie-2: #1c2125;
+  --borde: #2a3035;
+  --borde-fuerte: #3a4148;
+  --texto: #e6e9eb;
+  --texto-tenue: #9ba3aa;
+  --acento: #2bb3a3;
+  --acento-oscuro: #239485;
+  --acento-suave: rgba(43, 179, 163, .16);
+  --peligro: #f26b6b;
+  --peligro-suave: rgba(242, 107, 107, .14);
+  --hover: #242a2f;
+  --capa: rgba(0, 0, 0, .6);
+  --aviso: #2a3035;
+  --sombra: 0 16px 40px rgba(0, 0, 0, .5);
+  --sobre-acento: #06201d;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--texto);
+  background: var(--fondo);
+}
+h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+.texto-tenue { color: var(--texto-tenue); }
+.solo-lectores { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- Encabezado y navegación ---------- */
+.encabezado {
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.encabezado-contenido {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  height: 56px;
+}
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: var(--texto);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.marca-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radio);
+  background: var(--acento);
+  color: var(--sobre-acento);
+  font-size: 12px;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+}
+.pestanas { display: flex; gap: 4px; height: 100%; }
+.boton-tema { margin-left: auto; }
+.pestanas a {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: var(--texto-tenue);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.pestanas a:hover { color: var(--texto); }
+.pestanas a.activa { color: var(--texto); border-bottom-color: var(--acento); }
+
+.contenedor { max-width: 1080px; margin: 0 auto; padding: 32px 24px 48px; }
+
+.pagina-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.pagina-cabecera p { margin-top: 4px; }
+
+/* ---------- Botones ---------- */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.boton:hover:not(:disabled) { background: var(--hover); }
+.boton:disabled { opacity: .6; cursor: not-allowed; }
+.boton-primario { background: var(--acento); border-color: var(--acento); color: var(--sobre-acento); }
+.boton-primario:hover:not(:disabled) { background: var(--acento-oscuro); }
+.boton-peligro { background: var(--peligro); border-color: var(--peligro); color: #fff; }
+.boton-peligro:hover:not(:disabled) { filter: brightness(.92); }
+
+.boton-icono {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radio);
+  background: transparent;
+  color: var(--texto-tenue);
+  cursor: pointer;
+}
+.boton-icono:hover:not(:disabled) { background: var(--hover); color: var(--texto); }
+.boton-icono:disabled { opacity: .35; cursor: not-allowed; }
+.boton-icono-peligro:hover:not(:disabled) { background: var(--peligro-suave); color: var(--peligro); }
+.boton-icono-claro { color: rgba(255, 255, 255, .7); width: 24px; height: 24px; }
+.boton-icono-claro:hover:not(:disabled) { background: rgba(255, 255, 255, .12); color: #fff; }
+
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* ---------- Campos ---------- */
+.entrada {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+}
+.entrada:focus { outline: none; border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-suave); }
+.entrada.invalida { border-color: var(--peligro); }
+.entrada.invalida:focus { box-shadow: 0 0 0 3px var(--peligro-suave); }
+.entrada-corta { max-width: 140px; }
+.campo-grupo { display: flex; flex-direction: column; gap: 6px; }
+.campo-grupo + .campo-grupo { margin-top: 16px; }
+.campo-grupo label { font-weight: 500; }
+.mensaje-error { color: var(--peligro); }
+
+.buscador {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 340px;
+  color: var(--texto-tenue);
+}
+.buscador app-icono { position: absolute; left: 10px; pointer-events: none; }
+.buscador input {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px 0 34px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio);
+  font: inherit;
+  color: var(--texto);
+  background: var(--superficie);
+}
+.buscador input:focus { outline: none; border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-suave); }
+
+/* ---------- Panel y tabla ---------- */
+.panel {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.panel-barra {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--borde);
+  flex-wrap: wrap;
+}
+.entrada-filtro { width: auto; min-width: 200px; }
+
+.tabla { width: 100%; border-collapse: collapse; }
+.tabla th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--texto-tenue);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--borde);
+  background: var(--superficie-2);
+  white-space: nowrap;
+}
+.tabla td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--borde);
+  vertical-align: middle;
+}
+.tabla tbody tr:last-child td { border-bottom: 0; }
+.tabla tbody tr:hover td { background: var(--superficie-2); }
+.col-id { width: 64px; color: var(--texto-tenue); font-variant-numeric: tabular-nums; }
+.col-numero { width: 110px; text-align: center !important; font-variant-numeric: tabular-nums; }
+.col-acciones { width: 96px; text-align: right !important; white-space: nowrap; }
+.col-principal { font-weight: 500; }
+.reprobado { color: var(--peligro); font-weight: 500; }
+.fila-vacia td { text-align: center; color: var(--texto-tenue); padding: 40px 16px; }
+
+.encabezado-orden {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 4px;
+}
+.encabezado-orden:hover { color: var(--texto); }
+.encabezado-orden span { font-size: 11px; opacity: .7; }
+
+/* ---------- Paginación ---------- */
+.paginacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-top: 1px solid var(--borde);
+  gap: 12px;
+}
+.paginacion-controles { display: flex; align-items: center; gap: 2px; }
+.pagina-numero {
+  min-width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radio);
+  background: transparent;
+  font: inherit;
+  color: var(--texto-tenue);
+  cursor: pointer;
+}
+.pagina-numero:hover { background: var(--hover); color: var(--texto); }
+.pagina-numero.actual { background: var(--acento-suave); color: var(--acento); font-weight: 600; }
+
+/* ---------- Diálogos ---------- */
+.capa {
+  position: fixed;
+  inset: 0;
+  background: var(--capa);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 50;
+}
+.dialogo {
+  width: 100%;
+  max-width: 440px;
+  background: var(--superficie);
+  border-radius: 10px;
+  box-shadow: var(--sombra);
+}
+.dialogo-pequeno { max-width: 400px; }
+.dialogo-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px 0;
+}
+.dialogo-titulo { font-size: 16px; font-weight: 600; margin: 0 0 6px; }
+.dialogo-cuerpo { padding: 16px 20px; }
+.dialogo-pie {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--borde);
+  background: var(--superficie-2);
+  border-radius: 0 0 10px 10px;
+}
+
+/* ---------- Avisos ---------- */
+.avisos {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 60;
+  width: min(380px, calc(100vw - 32px));
+}
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--aviso);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+  animation: aparecer .2s ease-out;
+}
+.aviso-icono { color: #5eead4; display: inline-flex; }
+.aviso-error .aviso-icono { color: #fca5a5; }
+.aviso-texto { flex: 1; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* =========================================================
+   Celular: la tabla se convierte en tarjetas
+   ========================================================= */
+@media (max-width: 640px) {
+  .encabezado-contenido {
+    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    gap: 0;
+    padding: 0 16px;
+  }
+  .marca { height: 52px; }
+  .pestanas { height: 44px; overflow-x: auto; }
+  .boton-tema { position: absolute; top: 10px; right: 12px; }
+  .pestanas a { padding: 0 10px; }
+
+  .contenedor { padding: 20px 16px 96px; }
+  .pagina-cabecera { align-items: center; }
+  .pagina-cabecera .boton { padding: 0 12px; }
+
+  .panel-barra { padding: 12px; }
+  .buscador { max-width: none; flex-basis: 100%; }
+  .entrada-filtro { flex: 1; min-width: 0; }
+
+  .tabla thead { display: none; }
+  .tabla, .tabla tbody, .tabla tr, .tabla td { display: block; width: 100%; }
+  .tabla tr {
+    position: relative;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--borde);
+  }
+  .tabla tbody tr:hover td { background: none; }
+  .tabla td {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 3px 0;
+    border: 0;
+    text-align: right !important;
+    width: 100% !important;
+  }
+  .tabla td::before {
+    content: attr(data-etiqueta);
+    color: var(--texto-tenue);
+    text-align: left;
+  }
+  /* El nombre va como título de la tarjeta, sin etiqueta */
+  .tabla td.col-principal { font-size: 15px; padding: 0 72px 6px 0; text-align: left !important; }
+  .tabla td.col-principal::before, .tabla td.col-id { display: none; }
+  .tabla td.col-acciones { position: absolute; top: 6px; right: 8px; width: auto !important; padding: 0; }
+  .fila-vacia td::before { content: none; }
+  .fila-vacia td { justify-content: center; }
+
+  .paginacion { flex-direction: column; gap: 8px; }
+
+  /* Formularios como hoja inferior */
+  .capa { align-items: end; padding: 0; }
+  .dialogo { max-width: none; border-radius: 14px 14px 0 0; }
+  .dialogo-pie { border-radius: 0; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .dialogo-pie .boton { flex: 1; justify-content: center; height: 42px; }
+  .entrada, .buscador input { height: 42px; font-size: 16px; } /* 16px evita el zoom automático en iPhone */
+  .entrada-corta { max-width: none; }
+
+  .avisos { left: 16px; right: 16px; bottom: 16px; width: auto; }
+}
