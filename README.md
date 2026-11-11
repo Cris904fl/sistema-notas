@@ -1,5 +1,7 @@
 # Sistema de Notas
 
+![CI](https://github.com/Cris904fl/sistema-notas/actions/workflows/ci.yml/badge.svg)
+
 Prueba técnica .NET para **AudiSoft Consulting**: aplicación web para gestionar estudiantes, profesores y notas, con una API REST en .NET y un frontend en Angular.
 
 ## Tecnologías
