@@ -35,6 +35,17 @@ export class ApiService {
     return this.http.delete<void>(`${API_URL}/${recurso}/${id}`);
   }
 
+  /** Descarga el CSV de notas con los mismos filtros, búsqueda y orden del listado. */
+  exportarNotas(consulta: ConsultaPaginada, filtros: Record<string, number | null>): Observable<Blob> {
+    let params = new HttpParams();
+    if (consulta.buscar?.trim()) params = params.set('buscar', consulta.buscar.trim());
+    if (consulta.ordenarPor) params = params.set('ordenarPor', consulta.ordenarPor).set('descendente', !!consulta.descendente);
+    for (const [clave, valor] of Object.entries(filtros)) {
+      if (valor) params = params.set(clave, valor);
+    }
+    return this.http.get(`${API_URL}/notas/exportar`, { params, responseType: 'blob' });
+  }
+
   resumen(): Observable<Resumen> {
     return this.http.get<Resumen>(`${API_URL}/resumen`);
   }

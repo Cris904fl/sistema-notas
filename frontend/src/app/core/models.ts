@@ -30,6 +30,8 @@ export interface Nota {
   estudiante: string;
   idProfesor: number;
   profesor: string;
+  /** Versión de la fila (Base64), para el control de concurrencia. */
+  version: string;
 }
 
 export interface PersonaGuardar { nombre: string; }
@@ -39,6 +41,7 @@ export interface NotaGuardar {
   idEstudiante: number;
   idProfesor: number;
   valor: number;
+  version?: string;
 }
 
 export interface Indicadores {

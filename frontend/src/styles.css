@@ -124,6 +124,7 @@ p { margin: 0; }
   margin-bottom: 20px;
 }
 .pagina-cabecera p { margin-top: 4px; }
+.acciones-cabecera { display: flex; gap: 8px; }
 
 /* ---------- Botones ---------- */
 .boton {
@@ -401,6 +402,8 @@ p { margin: 0; }
   .contenedor { padding: 20px 16px 96px; }
   .pagina-cabecera { align-items: center; }
   .pagina-cabecera .boton { padding: 0 12px; }
+  .pagina-cabecera:has(.acciones-cabecera) { flex-direction: column; align-items: stretch; }
+  .acciones-cabecera .boton { flex: 1; justify-content: center; }
 
   .panel-barra { padding: 12px; }
   .buscador { max-width: none; flex-basis: 100%; }

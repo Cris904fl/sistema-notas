@@ -3,9 +3,14 @@
     <h1>Notas</h1>
     <p class="texto-tenue">Calificaciones en escala de 0,0 a 5,0</p>
   </div>
-  <button type="button" class="boton boton-primario" (click)="nueva()">
-    <app-icono nombre="mas" /> Nueva nota
-  </button>
+  <div class="acciones-cabecera">
+    <button type="button" class="boton" (click)="exportar()" [disabled]="exportando() || !datos()?.totalElementos">
+      <app-icono nombre="descargar" /> {{ exportando() ? 'Exportando...' : 'Exportar CSV' }}
+    </button>
+    <button type="button" class="boton boton-primario" (click)="nueva()">
+      <app-icono nombre="mas" /> Nueva nota
+    </button>
+  </div>
 </div>
 
 <section class="panel">

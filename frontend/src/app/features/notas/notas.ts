@@ -26,6 +26,7 @@ export class Notas implements OnInit {
   readonly datos = signal<Paginado<Nota> | null>(null);
   readonly cargando = signal(false);
   readonly guardando = signal(false);
+  readonly exportando = signal(false);
   readonly consulta = signal<ConsultaPaginada>({ pagina: 1, tamano: 5 });
   readonly filtroEstudiante = signal<number | null>(null);
   readonly filtroProfesor = signal<number | null>(null);
@@ -131,6 +132,8 @@ export class Notas implements OnInit {
       valor: Number(v.valor)
     };
     const actual = this.editando();
+    // Al editar se envía la versión leída: si otra persona cambió la nota, la API responde 409.
+    if (actual) cuerpo.version = actual.version;
     const peticion = actual
       ? this.api.actualizar<Nota>('notas', actual.id, cuerpo)
       : this.api.crear<Nota>('notas', cuerpo);
@@ -160,6 +163,25 @@ export class Notas implements OnInit {
         this.cargar();
       },
       error: (e: HttpErrorResponse) => this.alertas.error(mensajeDeError(e))
+    });
+  }
+
+  exportar() {
+    this.exportando.set(true);
+    this.api.exportarNotas(this.consulta(), {
+      idEstudiante: this.filtroEstudiante(),
+      idProfesor: this.filtroProfesor()
+    }).subscribe({
+      next: archivo => {
+        const enlace = document.createElement('a');
+        enlace.href = URL.createObjectURL(archivo);
+        enlace.download = `notas-${new Date().toISOString().slice(0, 10)}.csv`;
+        enlace.click();
+        URL.revokeObjectURL(enlace.href);
+        this.exportando.set(false);
+        this.alertas.exito('Archivo CSV descargado.');
+      },
+      error: (e: HttpErrorResponse) => { this.exportando.set(false); this.alertas.error(mensajeDeError(e)); }
     });
   }
 
