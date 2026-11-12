@@ -10,8 +10,20 @@ namespace GestionNotas.Infrastructure.Services;
 
 public class NotaService(GestionNotasDbContext db) : INotaService
 {
+    /// <summary>Máximo de filas que se exportan, para no saturar la API.</summary>
+    public const int MaximoExportacion = 10_000;
+
     public async Task<ResultadoPaginado<NotaDto>> ListarAsync(PaginacionQuery query, int? idEstudiante, int? idProfesor,
                                                               CancellationToken ct = default)
+        => await Proyectar(FiltrarYOrdenar(query, idEstudiante, idProfesor)).PaginarAsync(query, ct);
+
+    /// <summary>Todas las notas que cumplen los filtros (sin paginar), para exportar a CSV.</summary>
+    public async Task<IReadOnlyList<NotaDto>> ExportarAsync(PaginacionQuery query, int? idEstudiante, int? idProfesor,
+                                                            CancellationToken ct = default)
+        => await Proyectar(FiltrarYOrdenar(query, idEstudiante, idProfesor).Take(MaximoExportacion)).ToListAsync(ct);
+
+    /// <summary>Filtros, búsqueda y orden compartidos por el listado y la exportación.</summary>
+    private IQueryable<Nota> FiltrarYOrdenar(PaginacionQuery query, int? idEstudiante, int? idProfesor)
     {
         var consulta = db.Notas.AsNoTracking();
 
@@ -26,7 +38,7 @@ public class NotaService(GestionNotasDbContext db) : INotaService
                                         || n.Profesor!.Nombre.Contains(texto));
         }
 
-        consulta = (query.OrdenarPor?.ToLowerInvariant(), query.Descendente) switch
+        return (query.OrdenarPor?.ToLowerInvariant(), query.Descendente) switch
         {
             ("nombre", false)     => consulta.OrderBy(n => n.Nombre),
             ("nombre", true)      => consulta.OrderByDescending(n => n.Nombre),
@@ -39,9 +51,6 @@ public class NotaService(GestionNotasDbContext db) : INotaService
             (_, true)             => consulta.OrderByDescending(n => n.Id),
             _                     => consulta.OrderBy(n => n.Id)
         };
-
-        var proyeccion = Proyectar(consulta);
-        return await proyeccion.PaginarAsync(query, ct);
     }
 
     public async Task<NotaDto> ObtenerAsync(int id, CancellationToken ct = default) =>
@@ -73,7 +82,20 @@ public class NotaService(GestionNotasDbContext db) : INotaService
         entidad.IdEstudiante = dto.IdEstudiante;
         entidad.IdProfesor = dto.IdProfesor;
         entidad.Valor = Math.Round(dto.Valor, 1);
-        await db.SaveChangesAsync(ct);
+
+        // Concurrencia optimista: EF Core agrega "WHERE RowVersion = <versión leída>" al UPDATE.
+        // Si otra persona modificó la nota antes, no se actualiza ninguna fila y EF lanza la excepción.
+        if (dto.Version is not null)
+            db.Entry(entidad).Property(n => n.RowVersion).OriginalValue = dto.Version;
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ConflictoException("Otra persona modificó esta nota mientras usted la editaba. Recargue la lista e intente de nuevo.");
+        }
         return await ObtenerAsync(id, ct);
     }
 
@@ -98,5 +120,6 @@ public class NotaService(GestionNotasDbContext db) : INotaService
         consulta.Select(n => new NotaDto(
             n.Id, n.Nombre, n.Valor,
             n.IdEstudiante, n.Estudiante!.Nombre,
-            n.IdProfesor, n.Profesor!.Nombre));
+            n.IdProfesor, n.Profesor!.Nombre,
+            n.RowVersion));
 }

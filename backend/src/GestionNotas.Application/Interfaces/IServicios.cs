@@ -24,6 +24,7 @@ public interface IProfesorService
 public interface INotaService
 {
     Task<ResultadoPaginado<NotaDto>> ListarAsync(PaginacionQuery query, int? idEstudiante, int? idProfesor, CancellationToken ct = default);
+    Task<IReadOnlyList<NotaDto>> ExportarAsync(PaginacionQuery query, int? idEstudiante, int? idProfesor, CancellationToken ct = default);
     Task<NotaDto> ObtenerAsync(int id, CancellationToken ct = default);
     Task<NotaDto> CrearAsync(NotaGuardarDto dto, CancellationToken ct = default);
     Task<NotaDto> ActualizarAsync(int id, NotaGuardarDto dto, CancellationToken ct = default);

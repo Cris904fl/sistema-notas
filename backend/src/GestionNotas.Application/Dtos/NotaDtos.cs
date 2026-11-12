@@ -11,9 +11,13 @@ public record NotaGuardarDto(
     [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un estudiante.")]
     int IdEstudiante,
     [Range(typeof(decimal), "0", "5", ErrorMessage = "El valor debe estar entre 0,0 y 5,0.")]
-    decimal Valor);
+    decimal Valor,
+    // Versión que el cliente leyó; al actualizar se compara con la actual (concurrencia optimista).
+    // En JSON viaja como texto en Base64.
+    byte[]? Version = null);
 
 /// <summary>Nota con los nombres del estudiante y del profesor, para mostrar en la tabla.</summary>
 public record NotaDto(int Id, string Nombre, decimal Valor,
                       int IdEstudiante, string Estudiante,
-                      int IdProfesor, string Profesor);
+                      int IdProfesor, string Profesor,
+                      byte[] Version);

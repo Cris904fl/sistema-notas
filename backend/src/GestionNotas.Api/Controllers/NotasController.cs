@@ -16,6 +16,16 @@ public class NotasController(INotaService servicio) : ControllerBase
         [FromQuery] int? idEstudiante, [FromQuery] int? idProfesor, CancellationToken ct)
         => Ok(await servicio.ListarAsync(query, idEstudiante, idProfesor, ct));
 
+    /// <summary>Exporta a CSV las notas que cumplen los filtros actuales (sin paginar).</summary>
+    [HttpGet("exportar")]
+    [Produces("text/csv")]
+    public async Task<IActionResult> Exportar([FromQuery] PaginacionQuery query,
+        [FromQuery] int? idEstudiante, [FromQuery] int? idProfesor, CancellationToken ct)
+    {
+        var notas = await servicio.ExportarAsync(query, idEstudiante, idProfesor, ct);
+        return File(ExportadorCsv.GenerarNotas(notas), "text/csv; charset=utf-8", $"notas-{DateTime.Now:yyyyMMdd-HHmm}.csv");
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<NotaDto>> Obtener(int id, CancellationToken ct)
         => Ok(await servicio.ObtenerAsync(id, ct));

@@ -36,6 +36,7 @@ public class GestionNotasDbContext(DbContextOptions<GestionNotasDbContext> optio
             e.HasKey(x => x.Id);
             e.Property(x => x.Nombre).HasMaxLength(100).IsRequired();
             e.Property(x => x.Valor).HasPrecision(3, 1);
+            e.Property(x => x.RowVersion).IsRowVersion();   // token de concurrencia optimista
 
             // Llaves foráneas. Restrict: no se borra en cascada; la regla la valida el servicio (409).
             e.HasOne(x => x.Profesor).WithMany(p => p.Notas)

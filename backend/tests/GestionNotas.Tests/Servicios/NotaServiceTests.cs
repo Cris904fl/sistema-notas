@@ -112,4 +112,27 @@ public class NotaServiceTests
 
         Assert.Equal(2, db.Notas.Count());
     }
+
+    [Fact]
+    public async Task Exportar_DevuelveTodasLasNotasFiltradasSinPaginar()
+    {
+        using var db = ContextoPrueba.Crear();
+        var servicio = new NotaService(db);
+
+        var notas = await servicio.ExportarAsync(new PaginacionQuery { Tamano = 1 }, idEstudiante: 1, idProfesor: null);
+
+        Assert.Equal(2, notas.Count);   // ignora el tamaño de página: exporta todo lo filtrado
+        Assert.All(notas, n => Assert.Equal(1, n.IdEstudiante));
+    }
+
+    [Fact]
+    public async Task Actualizar_LanzaConflicto_SiOtraPersonaModificoLaNota()
+    {
+        using var db = ContextoPrueba.Crear();
+        var servicio = new NotaService(db);
+        var versionDesactualizada = new byte[] { 9, 9, 9 };
+
+        await Assert.ThrowsAsync<ConflictoException>(() => servicio.ActualizarAsync(3,
+            new NotaGuardarDto("Parcial 1", IdProfesor: 1, IdEstudiante: 2, Valor: 4m, Version: versionDesactualizada)));
+    }
 }
