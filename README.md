@@ -2,80 +2,93 @@
 
 ![CI](https://github.com/Cris904fl/sistema-notas/actions/workflows/ci.yml/badge.svg)
 
-Prueba técnica .NET para **AudiSoft Consulting**: aplicación web para gestionar estudiantes, profesores y notas, con una API REST en .NET y un frontend en Angular.
+Aplicación web para registrar estudiantes, profesores y notas. La desarrollé como prueba técnica para AudiSoft Consulting: una API REST en .NET 10 con SQL Server y una interfaz en Angular.
 
-## Tecnologías
+## Cómo ejecutarlo
 
-| Capa | Tecnología |
+Con Docker Desktop instalado, desde la raíz del repositorio:
+
+```bash
+docker compose up -d --build
+```
+
+| Qué | Dónde |
 |---|---|
-| Base de datos | SQL Server 2022 (Docker) |
-| Backend | .NET 10, ASP.NET Core Web API, Entity Framework Core, Swagger |
-| Frontend | Angular (componentes standalone, signals), TypeScript, CSS propio |
+| Aplicación | http://localhost:4200 |
+| Swagger | http://localhost:5080/swagger |
+| Estado de la API | http://localhost:5080/salud |
 
-## Estructura
+La primera vez tarda unos minutos mientras descarga las imágenes y compila. Cada vez que se levanta, la base de datos se recrea con datos de ejemplo.
 
-```
-PruebaAudisoft/
-├── database/script.sql        # Tablas, llaves foráneas, restricciones y datos iniciales
-├── docker-compose.yml         # SQL Server con el script aplicado automáticamente
-├── backend/                   # Solución .NET por capas
-│   ├── src/GestionNotas.Domain          # Entidades
-│   ├── src/GestionNotas.Application     # DTOs, interfaces, paginación y excepciones
-│   ├── src/GestionNotas.Infrastructure  # EF Core y servicios
-│   ├── src/GestionNotas.Api             # Controladores, middleware de errores y Swagger
-│   └── tests/GestionNotas.Tests         # Pruebas unitarias
-└── frontend/                  # Aplicación Angular
-```
+### Sin Docker para la API y el frontend
 
-## Requisitos
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [.NET SDK 10](https://dotnet.microsoft.com/download)
-- [Node.js 22 o superior](https://nodejs.org/) y Angular CLI (`npm install -g @angular/cli`)
-
-## Instalación y ejecución
-
-**1. Base de datos**
+Si prefiere ejecutar cada parte por separado (necesita .NET 10, Node.js 22 o superior y Angular CLI):
 
 ```bash
-docker compose up -d
-```
+# 1. Solo la base de datos
+docker compose up -d sqlserver sqlinit
 
-Levanta SQL Server en el puerto 1433 y ejecuta `database/script.sql` automáticamente (crea la base `GestionNotas` con datos de ejemplo).
-
-**2. API**
-
-```bash
+# 2. API
 cd backend
 dotnet run --project src/GestionNotas.Api
-```
 
-La API queda en `http://localhost:5080` y la documentación Swagger en `http://localhost:5080/swagger`.
-
-**3. Frontend**
-
-```bash
+# 3. Frontend (en otra terminal)
 cd frontend
 npm install
 ng serve
 ```
 
-La aplicación queda en `http://localhost:4200`.
+También puede usar un SQL Server propio: ejecute `database/script.sql` y ajuste la cadena de conexión en `backend/src/GestionNotas.Api/appsettings.json`.
 
-> La cadena de conexión de desarrollo está en `backend/src/GestionNotas.Api/appsettings.json` y apunta al contenedor de Docker. La contraseña es solo para el entorno local.
+### Pruebas
 
-## Funcionalidades
+```bash
+cd backend
+dotnet test
+```
 
-- CRUD de estudiantes, profesores y notas.
-- Llaves foráneas de `Nota` hacia `Estudiante` y `Profesor`, y validación del valor entre 0,0 y 5,0.
-- Paginación, búsqueda y ordenamiento resueltos en la base de datos.
-- Alertas al crear, actualizar y eliminar, y confirmación antes de eliminar.
-- No se permite eliminar un estudiante o profesor con notas registradas (respuesta 409 con un mensaje claro).
-- Promedio de cada estudiante y nombres del estudiante y el profesor en cada nota.
-- Manejo de errores uniforme con `ProblemDetails` (RFC 9457).
-- Diseño responsive: en celular, las tablas se muestran como tarjetas.
-- Tema claro y oscuro seleccionable.
+## Qué incluye
 
-## Autor
+**Lo que pedía la prueba:** las tablas Estudiante, Profesor y Nota con sus llaves foráneas, una API REST con el CRUD de cada una, y un frontend con menú, tablas para crear, editar y eliminar, paginación y alertas.
+
+**Lo que agregué:**
+
+- Paginación, búsqueda y orden resueltos en SQL Server, no en memoria.
+- Un tablero de inicio cuyos indicadores calcula un procedimiento almacenado (`sp_ResumenGeneral`) y dos vistas.
+- Validación del valor de la nota entre 0,0 y 5,0, tanto en el formulario como en la API y en la base de datos.
+- No se puede eliminar un estudiante o un profesor que tenga notas: la API responde 409 con un mensaje claro.
+- Control de edición simultánea con `ROWVERSION`: si dos personas editan la misma nota, la segunda recibe un aviso en vez de sobrescribir el cambio.
+- Exportación de notas a CSV, respetando los filtros y lista para abrir en Excel.
+- Errores con formato `ProblemDetails` (RFC 9457) y un endpoint de salud que verifica la conexión con la base de datos.
+- Interfaz adaptable a celular y tema claro u oscuro.
+- 36 pruebas unitarias con xUnit y un flujo de GitHub Actions que compila y prueba cada cambio.
+
+## Estructura
+
+```
+database/        Scripts de SQL Server (tablas, vistas, procedimiento y datos)
+backend/
+  src/
+    GestionNotas.Domain/          Entidades
+    GestionNotas.Application/     DTOs, interfaces, paginación, excepciones y exportación CSV
+    GestionNotas.Infrastructure/  Entity Framework Core y servicios
+    GestionNotas.Api/             Controladores, manejo de errores, salud y Swagger
+  tests/GestionNotas.Tests/       Pruebas unitarias
+frontend/        Aplicación Angular
+docker-compose.yml
+```
+
+## Decisiones técnicas
+
+- **Capas separadas.** Application y Domain no dependen de Entity Framework ni de ASP.NET, así que la lógica se puede probar sin base de datos real.
+- **Orden antes de proyectar.** En las consultas, el `OrderBy` se aplica sobre la entidad y luego se proyecta al DTO, para que Entity Framework lo traduzca completo a SQL.
+- **Procedimiento y vistas para el tablero.** Los cálculos se hacen en SQL Server y solo viajan los resultados. El procedimiento se ejecuta tal cual; las vistas se consultan desde LINQ con filtro, orden y `TOP` en la base de datos.
+- **Restrict en las llaves foráneas.** Preferí no borrar notas en cascada: la regla se valida en el servicio y el usuario recibe una explicación.
+
+## Notas
+
+La contraseña de SQL Server que aparece en `docker-compose.yml` y `appsettings.json` es solo para el entorno local de la prueba.
+
+---
 
 Cristian David Flórez Jiménez · [github.com/Cris904fl](https://github.com/Cris904fl)
