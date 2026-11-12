@@ -46,6 +46,7 @@ CREATE TABLE dbo.Nota
     IdProfesor   INT               NOT NULL,
     IdEstudiante INT               NOT NULL,
     Valor        DECIMAL(3,1)      NOT NULL,   -- Escala colombiana de 0.0 a 5.0
+    RowVersion   ROWVERSION        NOT NULL,   -- Cambia en cada UPDATE: control de concurrencia optimista
     CONSTRAINT PK_Nota PRIMARY KEY (Id),
     CONSTRAINT FK_Nota_Profesor   FOREIGN KEY (IdProfesor)   REFERENCES dbo.Profesor (Id),
     CONSTRAINT FK_Nota_Estudiante FOREIGN KEY (IdEstudiante) REFERENCES dbo.Estudiante (Id),
